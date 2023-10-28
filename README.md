@@ -21,15 +21,13 @@ curl https://raw.githubusercontent.com/haihala/shortcut-hook/main/install.sh | b
 
 ## Usage
 
-After commiting, you will be prompted to add a shortcut link. Entering anything
-besides "y" or "Y" will cause nothing to happen.
+After commiting, you will be prompted. If you don't want to add a link to a
+story, just press enter and the script exits. If you want to link, add a search
+query. Search should work like the shortcut UI search.
 
-After that, you will be prompted to search for stories. Your search term
-doesn't have to be that accurate, just something to put the desired story in
-the top 25.
-
-After that, fzf (a fuzzy finder) will let you pick one from the list of options
-the search term returned.
+The script will send that query to shortcut and prompt you with all the stories
+that match. Your search term doesn't have to single out a story, it just 
+needs to be close enough to put the desired story in the top 25.
 
 After you select one, the link to that will be inserted to the commit message
 with a "Shortcut: " -prefix

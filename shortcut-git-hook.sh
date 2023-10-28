@@ -10,17 +10,19 @@ fi
 # This should allow for user input
 exec < /dev/tty
 
+# Entered during installation
 token="PUT-SHORTCUT-API-TOKEN-HERE"
 
-read -p "Link to shortcut story (y/N)?" linkWanted
+echo "Do you want to link that commit to shortcut story?"
+echo
+echo "Yes! - Enter a query to search for stories"
+echo "No! - Enter an empty string"
+read query
 
-if [[ "${linkWanted,,}" != "y" ]]; then
-    echo "Won't add link"
+if [ -z "$query" ]; then    # Empty string
+    echo "Roger that, NOT adding link"
     exit
 fi
-
-echo "Search for stories"
-read query
 
 search=$(curl -X GET \
     -H "Content-Type: application/json" \
@@ -30,13 +32,13 @@ search=$(curl -X GET \
     | jq '.data | map ({ name, app_url })')
 
 if [[ $(echo $search | jq 'length') -eq "0" ]]; then
-    echo "Search for \"$query\" returned nothing."
+    echo "Search for \"$query\" returned nothing, can't add link"
     exit
 fi
 
 selected=$(echo $search | jq '.[] | .name' | fzf)
 if [[ $? -ne 0 ]]; then
-    echo "Story search cancelled, won't add link"
+    echo "Story selection cancelled, won't add link"
     exit
 fi
 
