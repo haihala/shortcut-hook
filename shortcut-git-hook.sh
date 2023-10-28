@@ -1,9 +1,13 @@
 #!/bin/env bash
 
+msgFile=$1
+
+# This should allow for user input
+exec < /dev/tty
+
 token="PUT-SHORTCUT-API-TOKEN-HERE"
 
-echo "Link to shortcut story (y/N)?"
-read linkWanted
+read -p "Link to shortcut story (y/N)?" linkWanted
 
 if [[ "${linkWanted,,}" != "y" ]]; then
     echo "Won't link"
@@ -23,9 +27,13 @@ search=$(curl -X GET \
 selected=$(echo $search | jq '.[] | .name' | fzf)
 if [[ $? -ne 0 ]]; then
     echo "Story search cancelled"
-    exit mandateLinks
+    exit
 fi
 
 url=$(echo $search | jq -r ".[] | select(.name==$selected) | .app_url")
 output="Shortcut: $url"
-echo $output
+# Substitute the first line that starts with a # with a newline, output, newline and itself (&)
+# Largely from https://stackoverflow.com/questions/30386483/command-to-insert-lines-before-first-match
+# Because url contains /, use | for delimiter for the second part
+sed -i "0,/^#.*/s|^#.*|\n$output\n&|" $msgFile
+cat $msgFile
