@@ -2,6 +2,11 @@
 
 msgFile=$1
 
+if grep -q "^Shortcut: " "$msgFile"; then
+    echo "Message contains a shortcut link already"
+    exit
+fi
+
 # This should allow for user input
 exec < /dev/tty
 
@@ -10,7 +15,7 @@ token="PUT-SHORTCUT-API-TOKEN-HERE"
 read -p "Link to shortcut story (y/N)?" linkWanted
 
 if [[ "${linkWanted,,}" != "y" ]]; then
-    echo "Won't link"
+    echo "Won't add link"
     exit
 fi
 
@@ -26,7 +31,7 @@ search=$(curl -X GET \
 
 selected=$(echo $search | jq '.[] | .name' | fzf)
 if [[ $? -ne 0 ]]; then
-    echo "Story search cancelled"
+    echo "Story search cancelled, won't add link"
     exit
 fi
 
@@ -36,4 +41,3 @@ output="Shortcut: $url"
 # Largely from https://stackoverflow.com/questions/30386483/command-to-insert-lines-before-first-match
 # Because url contains /, use | for delimiter for the second part
 sed -i "0,/^#.*/s|^#.*|\n$output\n&|" $msgFile
-cat $msgFile
