@@ -29,6 +29,11 @@ search=$(curl -X GET \
     -L "https://api.app.shortcut.com/api/v3/search/stories" \
     | jq '.data | map ({ name, app_url })')
 
+if [[ $(echo $search | jq 'length') -eq "0" ]]; then
+    echo "Search for \"$query\" returned nothing."
+    exit
+fi
+
 selected=$(echo $search | jq '.[] | .name' | fzf)
 if [[ $? -ne 0 ]]; then
     echo "Story search cancelled, won't add link"
