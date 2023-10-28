@@ -20,7 +20,7 @@ chmod +x $destination
 sed -i "s/PUT-SHORTCUT-API-TOKEN-HERE/$token/g" $destination
 
 # This is done this way so that the existing gerrit hook is not bothered
-echo "exec $destination" >> "$hookDir/commit-msg"
+echo "exec $destination \$1" >> "$hookDir/commit-msg"
 chmod +x $hookDir/commit-msg
 
 echo "Hook installed"
