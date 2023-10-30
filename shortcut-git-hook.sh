@@ -47,8 +47,9 @@ output="Shortcut: $url"
 
 # Largely from https://stackoverflow.com/questions/30386483/command-to-insert-lines-before-first-match
 # Because url contains /, use | for delimiter for the second part
-if grep -q "^Change\-Id: " $msgFile; then
-    # Gerrit hook has ran
+if grep -q "^Change-Id: " $msgFile; then
+    # Gerrit hook has ran and it expects the change-id to be
+    # the last line so place the link before that
 
     # Substitute the first line that starts with a "Change-Id:" with a newline, output, newline and itself (&)
     sed -i "0,/^Change\-Id: .*/s|^Change\-Id: .*|\n$output\n&|" $msgFile
