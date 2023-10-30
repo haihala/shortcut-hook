@@ -11,6 +11,7 @@ read -s -p "Give shortcut api token: " token
 
 # Just some request to test the token works. This should fail if the token was invalid
 curl -X GET \
+    --fail \
     -H "Content-Type: application/json" \
     -H "Shortcut-Token: $token" \
     -L "https://api.app.shortcut.com/api/v3/categories"
