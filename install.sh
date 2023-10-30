@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # This should fail if not in a git repo
-destination=`git rev-parse --git-dir`/hooks/shortcut-git-hook.sh
+destination=$(git rev-parse --git-dir)/hooks/shortcut-git-hook.sh
 hookDir=$(dirname $destination)
 mkdir -p $hookDir
 
@@ -11,16 +11,25 @@ read -s -p "Give shortcut api token: " token
 
 # Just some request to test the token works. This should fail if the token was invalid
 curl -X GET \
-  -H "Content-Type: application/json" \
-  -H "Shortcut-Token: $token" \
-  -L "https://api.app.shortcut.com/api/v3/categories"
+    -H "Content-Type: application/json" \
+    -H "Shortcut-Token: $token" \
+    -L "https://api.app.shortcut.com/api/v3/categories"
 
 curl -Lo $destination https://raw.githubusercontent.com/haihala/shortcut-hook/main/shortcut-git-hook.sh
 chmod +x $destination
 sed -i "s/PUT-SHORTCUT-API-TOKEN-HERE/$token/g" $destination
 
 # This is done this way so that the existing gerrit hook is not bothered
-echo "exec $destination \$1" >> "$hookDir/commit-msg"
-chmod +x $hookDir/commit-msg
+launch="exec $destination \$1"
+
+msgFile=$hookDir/commit-msg
+touch $msgFile
+chmod +x $msgFile
+
+if grep -q "$launch" "$msgFile"; then
+    echo "Hook already stared from commit-msg not adding it again"
+else
+    echo $launch >>"$msgFile"
+fi
 
 echo "Hook installed"
