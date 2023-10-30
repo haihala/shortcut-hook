@@ -8,7 +8,7 @@ if grep -q "^Shortcut: " "$msgFile"; then
 fi
 
 # This should allow for user input
-exec < /dev/tty
+exec </dev/tty
 
 # Entered during installation
 token="PUT-SHORTCUT-API-TOKEN-HERE"
@@ -19,7 +19,7 @@ echo "Yes! - Enter a query to search for stories"
 echo "No! - Enter an empty string"
 read query
 
-if [ -z "$query" ]; then    # Empty string
+if [ -z "$query" ]; then # Empty string
     echo "Roger that, NOT adding link"
     exit
 fi
@@ -28,8 +28,8 @@ search=$(curl -X GET \
     -H "Content-Type: application/json" \
     -H "Shortcut-Token: $token" \
     -d '{ "detail": "slim", "page_size": 25, "query": "'$query'" }' \
-    -L "https://api.app.shortcut.com/api/v3/search/stories" \
-    | jq '.data | map ({ name, app_url })')
+    -L "https://api.app.shortcut.com/api/v3/search/stories" |
+    jq '.data | map ({ name, app_url })')
 
 if [[ $(echo $search | jq 'length') -eq "0" ]]; then
     echo "Search for \"$query\" returned nothing, can't add link"
