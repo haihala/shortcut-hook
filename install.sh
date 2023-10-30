@@ -27,9 +27,9 @@ touch $msgFile
 chmod +x $msgFile
 
 if grep -q "$launch" "$msgFile"; then
+    echo "Updated script and token"
     echo "Hook already stared from commit-msg not adding it again"
 else
     echo $launch >>"$msgFile"
+    echo "Hook installed"
 fi
-
-echo "Hook installed"
