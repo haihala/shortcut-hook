@@ -17,7 +17,7 @@ echo "Do you want to link that commit to shortcut story?"
 echo
 echo "Yes! - Enter a query to search for stories"
 echo "No! - Enter an empty string"
-read query
+read -e query
 
 if [ -z "$query" ]; then # Empty string
     echo "Roger that, NOT adding link"
