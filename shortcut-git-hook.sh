@@ -27,7 +27,7 @@ fi
 search=$(curl -X GET \
     -H "Content-Type: application/json" \
     -H "Shortcut-Token: $token" \
-    -d '{ "detail": "slim", "page_size": 25, "query": "'$query'" }' \
+    -d '{ "detail": "slim", "page_size": 25, "query": "'"$query"'" }' \
     -L "https://api.app.shortcut.com/api/v3/search/stories" |
     jq '.data | map ({ name, app_url })')
 
