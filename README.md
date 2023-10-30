@@ -16,7 +16,7 @@ Steps:
 
 Installation script can be ran with:
 ```bash
-curl https://raw.githubusercontent.com/haihala/shortcut-hook/main/install.sh | bash
+bash <(https://raw.githubusercontent.com/haihala/shortcut-hook/main/install.sh)
 ```
 
 ## Usage
