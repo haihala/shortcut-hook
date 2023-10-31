@@ -2,6 +2,8 @@
 
 msgFile=$1
 
+echo "Commit: " $(head -n 1 $msgFile)
+
 if grep -q "^Shortcut: " "$msgFile"; then
     echo "Message contains a shortcut link already"
     exit
