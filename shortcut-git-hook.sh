@@ -2,11 +2,11 @@
 
 msgFile=$1
 
-# This should allow for user input
-exec </dev/tty
-
 # Entered during installation
 token="PUT-SHORTCUT-API-TOKEN-HERE"
+
+# This should allow for user input
+exec </dev/tty
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
     if ! command -v gsed >/dev/null; then
