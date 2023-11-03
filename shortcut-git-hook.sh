@@ -8,13 +8,19 @@ token="PUT-SHORTCUT-API-TOKEN-HERE"
 # This should allow for user input
 exec </dev/tty
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    if ! command -v gsed >/dev/null; then
-        echo "Please install gnu-sed"
-        exit
+osSed() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        if ! command -v gsed >/dev/null; then
+            echo "Please install gnu-sed"
+            exit
+        fi
+        echo "using gsed"
+        gsed $@
+    else
+        echo "using sed"
+        sed $@
     fi
-    alias sed=gsed
-fi
+}
 
 echo "Commit: " $(head -n 1 $msgFile)
 
@@ -62,8 +68,8 @@ if grep -q "^Change-Id: " $msgFile; then
     # the last line so place the link before that
 
     # Substitute the first line that starts with a "Change-Id:" with a newline, output, newline and itself (&)
-    sed -i.bak "0,/^Change\-Id: .*/s|^Change\-Id: .*|\n$output\n&|" $msgFile
+    osSed -i.bak "0,/^Change\-Id: .*/s|^Change\-Id: .*|\n$output\n&|" $msgFile
 else
     # Substitute the first line that starts with a # with a newline, output, newline and itself (&)
-    sed -i.bak "0,/^#.*/s|^#.*|\n$output\n&|" $msgFile
+    osSed -i.bak "0,/^#.*/s|^#.*|\n$output\n&|" $msgFile
 fi
