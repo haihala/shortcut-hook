@@ -15,10 +15,10 @@ osSed() {
             exit
         fi
         echo "using gsed"
-        gsed $@
+        gsed "$@"
     else
         echo "using sed"
-        sed $@
+        sed "$@"
     fi
 }
 
