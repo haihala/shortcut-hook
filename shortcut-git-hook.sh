@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    if ! command -v gsed; then
+        echo "Please install gnu-sed"
+        exit
+    fi
+    alias sed=gsed
+fi
+
 msgFile=$1
 
 echo "Commit: " $(head -n 1 $msgFile)
