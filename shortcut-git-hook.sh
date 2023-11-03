@@ -2,11 +2,11 @@
 
 msgFile=$1
 
-# Entered during installation
-token="PUT-SHORTCUT-API-TOKEN-HERE"
-
 # This should allow for user input
 exec </dev/tty
+
+# Entered during installation
+token="PUT-SHORTCUT-API-TOKEN-HERE"
 
 osSed() {
     if [[ "$OSTYPE" == "darwin"* ]]; then
