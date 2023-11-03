@@ -54,8 +54,8 @@ if grep -q "^Change-Id: " $msgFile; then
     # the last line so place the link before that
 
     # Substitute the first line that starts with a "Change-Id:" with a newline, output, newline and itself (&)
-    sed -i "0,/^Change\-Id: .*/s|^Change\-Id: .*|\n$output\n&|" $msgFile
+    sed -i.bak "0,/^Change\-Id: .*/s|^Change\-Id: .*|\n$output\n&|" $msgFile
 else
     # Substitute the first line that starts with a # with a newline, output, newline and itself (&)
-    sed -i "0,/^#.*/s|^#.*|\n$output\n&|" $msgFile
+    sed -i.bak "0,/^#.*/s|^#.*|\n$output\n&|" $msgFile
 fi

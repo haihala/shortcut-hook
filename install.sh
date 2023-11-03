@@ -18,7 +18,9 @@ curl -X GET \
 
 curl -Lo $destination https://raw.githubusercontent.com/haihala/shortcut-hook/main/shortcut-git-hook.sh
 chmod +x $destination
-sed -i "s/PUT-SHORTCUT-API-TOKEN-HERE/$token/g" $destination
+
+# OSX sed is funny, use gnu-sed if available (listed as dependency)
+sed -i.bak "s/PUT-SHORTCUT-API-TOKEN-HERE/$token/g" $destination
 
 # This is done this way so that the existing gerrit hook is not bothered
 launch="exec $destination \$1"
