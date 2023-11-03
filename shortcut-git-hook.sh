@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
 
+msgFile=$1
+
+# This should allow for user input
+exec </dev/tty
+
+# Entered during installation
+token="PUT-SHORTCUT-API-TOKEN-HERE"
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    if ! command -v gsed; then
+    if ! command -v gsed >/dev/null; then
         echo "Please install gnu-sed"
         exit
     fi
     alias sed=gsed
 fi
-
-msgFile=$1
 
 echo "Commit: " $(head -n 1 $msgFile)
 
@@ -16,12 +22,6 @@ if grep -q "^Shortcut: " "$msgFile"; then
     echo "Message contains a shortcut link already"
     exit
 fi
-
-# This should allow for user input
-exec </dev/tty
-
-# Entered during installation
-token="PUT-SHORTCUT-API-TOKEN-HERE"
 
 echo "Do you want to link that commit to shortcut story?"
 echo
