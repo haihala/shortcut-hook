@@ -43,12 +43,14 @@ if [ -z "$query" ]; then # Empty string
 fi
 
 function queryShortcut() {
-    out=$(curl -s -X GET \
-        -H "Content-Type: application/json" \
-        -H "Shortcut-Token: $token" \
-        -d '{ "detail": "slim", "page_size": 25, "query": "'"$1"'"}' \
-        -L 'https://api.app.shortcut.com/api/v3/search/stories' |
-        jq '.data | map ({ name, app_url })')
+    out=$(
+        curl -X GET \
+            -H "Content-Type: application/json" \
+            -H "Shortcut-Token: $token" \
+            -d '{ "detail": "slim", "page_size": 25, "query": "'"$1"'"}' \
+            -L 'https://api.app.shortcut.com/api/v3/search/stories' |
+            jq '.data | map ({ name, app_url })'
+    )
 
     if [[ $(echo $out | jq 'length') -eq "0" ]]; then
         echo "Search for \"$1\" returned nothing, can't add link"
@@ -58,7 +60,8 @@ function queryShortcut() {
     echo $out
 }
 
-search=$(queryShortcut $query)
+filtered_query=$(echo $query | sed 's/"/\\"/g')
+search=$(queryShortcut "$filtered_query")
 
 long_arg="curl -s \
     -X GET \
@@ -73,15 +76,16 @@ selected=$(
         jq -r '.[] | .name' |
         fzf \
             --header 'Press ctrl-r to re-query shortcut with the search term' \
-            --bind "ctrl-r:reload:$long_arg"
+            --bind "ctrl-r:reload:$long_arg" |
+        sed 's/"/\\"/g' # This deals with strings with quotes in them :D
 )
 
-if [[ $? -ne 0 ]]; then
+if [[ -z "$selected" ]]; then
     echo "Story selection cancelled, won't add link"
     exit
 fi
 
-url=$(echo $search | jq -r '.[] | select(.name=="'"$selected"'") | .app_url')
+url=$(echo "$search" | jq -r '.[] | select(.name=="'"$selected"'") | .app_url')
 
 if [[ -z "$url" ]]; then
     # Because how fzf refresh works, we need a second query for the url
