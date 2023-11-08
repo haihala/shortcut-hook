@@ -10,11 +10,13 @@ mkdir -p $hookDir
 read -s -p "Give shortcut api token: " token
 
 # Just some request to test the token works. This should fail if the token was invalid
-curl -X GET \
+curl -s -X GET \
     --fail \
     -H "Content-Type: application/json" \
     -H "Shortcut-Token: $token" \
     -L "https://api.app.shortcut.com/api/v3/categories"
+# Output looks nicer if we put an empty line here
+echo
 
 curl -Lo $destination https://raw.githubusercontent.com/haihala/shortcut-hook/main/shortcut-git-hook.sh
 chmod +x $destination

@@ -14,17 +14,19 @@ osSed() {
             echo "Please install gnu-sed"
             exit
         fi
-        echo "using gsed"
         gsed "$@"
     else
-        echo "using sed"
         sed "$@"
     fi
 }
 
 echo "Commit: " $(head -n 1 $msgFile)
 
-if grep -q "^Shortcut: " "$msgFile"; then
+function hookInFile() {
+    grep -q "^Shortcut: " "$msgFile"
+}
+
+if $(hookInFile); then
     echo "Message contains a shortcut link already"
     exit
 fi
@@ -40,25 +42,53 @@ if [ -z "$query" ]; then # Empty string
     exit
 fi
 
-search=$(curl -X GET \
-    -H "Content-Type: application/json" \
-    -H "Shortcut-Token: $token" \
-    -d '{ "detail": "slim", "page_size": 25, "query": "'"$query"'" }' \
-    -L "https://api.app.shortcut.com/api/v3/search/stories" |
-    jq '.data | map ({ name, app_url })')
+function queryShortcut() {
+    out=$(curl -s -X GET \
+        -H "Content-Type: application/json" \
+        -H "Shortcut-Token: $token" \
+        -d '{ "detail": "slim", "page_size": 25, "query": "'"$1"'"}' \
+        -L 'https://api.app.shortcut.com/api/v3/search/stories' |
+        jq '.data | map ({ name, app_url })')
 
-if [[ $(echo $search | jq 'length') -eq "0" ]]; then
-    echo "Search for \"$query\" returned nothing, can't add link"
-    exit
-fi
+    if [[ $(echo $out | jq 'length') -eq "0" ]]; then
+        echo "Search for \"$1\" returned nothing, can't add link"
+        exit 1
+    fi
 
-selected=$(echo $search | jq '.[] | .name' | fzf)
+    echo $out
+}
+
+search=$(queryShortcut $query)
+
+long_arg="curl -s \
+    -X GET \
+    -H 'Content-Type: application/json' \
+    -H 'Shortcut-Token: $token' \
+    -d '{ \"detail\": \"slim\", \"page_size\": 25, \"query\": \"{q}\" }' \
+    -L 'https://api.app.shortcut.com/api/v3/search/stories' \
+    | jq -r '.data | .[] | .name'"
+
+selected=$(
+    echo $search |
+        jq -r '.[] | .name' |
+        fzf \
+            --header 'Press ctrl-r to re-query shortcut with the search term' \
+            --bind "ctrl-r:reload:$long_arg"
+)
+
 if [[ $? -ne 0 ]]; then
     echo "Story selection cancelled, won't add link"
     exit
 fi
 
-url=$(echo $search | jq -r ".[] | select(.name==$selected) | .app_url")
+url=$(echo $search | jq -r '.[] | select(.name=="'"$selected"'") | .app_url')
+
+if [[ -z "$url" ]]; then
+    # Because how fzf refresh works, we need a second query for the url
+    # We could instead contain the url in the fzf view, but that seems ugly
+    url=$(queryShortcut $selected | jq -r '.[] | select(.name=="'"$selected"'") | .app_url')
+fi
+
 output="Shortcut: $url"
 
 # Largely from https://stackoverflow.com/questions/30386483/command-to-insert-lines-before-first-match
@@ -72,4 +102,10 @@ if grep -q "^Change-Id: " $msgFile; then
 else
     # Substitute the first line that starts with a # with a newline, output, newline and itself (&)
     osSed -i.bak "0,/^#.*/s|^#.*|\n$output\n&|" $msgFile
+
+    # Sometimes, there are no comments in $msgFile, in those cases just put it in the end
+    if ! $(hookInFile); then
+        echo >>$msgFile
+        echo $output >>$msgFile
+    fi
 fi
